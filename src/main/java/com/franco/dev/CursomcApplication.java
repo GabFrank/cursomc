@@ -13,6 +13,7 @@ import com.franco.dev.domain.Cidade;
 import com.franco.dev.domain.Cliente;
 import com.franco.dev.domain.Endereco;
 import com.franco.dev.domain.Estado;
+import com.franco.dev.domain.ItemPedido;
 import com.franco.dev.domain.Pagamento;
 import com.franco.dev.domain.PagamentoComBoleto;
 import com.franco.dev.domain.PagamentoComCartao;
@@ -25,6 +26,7 @@ import com.franco.dev.repository.CidadeRepository;
 import com.franco.dev.repository.ClienteRepository;
 import com.franco.dev.repository.EnderecoRepository;
 import com.franco.dev.repository.EstadoRepository;
+import com.franco.dev.repository.ItemPedidoRepository;
 import com.franco.dev.repository.PagamentoRepository;
 import com.franco.dev.repository.PedidoRepository;
 import com.franco.dev.repository.ProdutoRepository;
@@ -55,6 +57,9 @@ public class CursomcApplication implements CommandLineRunner{
 	
 	@Autowired 
 	PagamentoRepository pagamentoRepository;
+	
+	@Autowired 
+	ItemPedidoRepository itemPedidoRepository;
 	
 
 	public static void main(String[] args) {
@@ -88,11 +93,17 @@ public class CursomcApplication implements CommandLineRunner{
 		Pedido ped1 = new Pedido(null, sdf.parse("30/09/2017 10:32"), cli1, e1);
 		Pedido ped2 = new Pedido(null, sdf.parse("10/10/2019 19:35"), cli1, e2);
 		
+		ItemPedido ip1 = new ItemPedido(ped1, p1, 0.00, 1, 2000.00);
+		ItemPedido ip2 = new ItemPedido(ped1, p3, 0.00, 2, 80.00);
+		ItemPedido ip3 = new ItemPedido(ped2, p2, 100.00, 1, 800.00);
+		
 		Pagamento pagto1 = new PagamentoComCartao(null, EstadoPagamento.QUITADO, ped1, 6);
 		ped1.setPagamento(pagto1);
+		ped1.getItens().addAll(Arrays.asList(ip1, ip2));
 		
 		Pagamento pagto2 = new PagamentoComBoleto(null, EstadoPagamento.PENDENTE, ped2, sdf.parse("20/10/2019 00:00"), null);
 		ped2.setPagamento(pagto2);
+		ped2.getItens().addAll(Arrays.asList(ip3));
 		
 		est1.setCidades(Arrays.asList(c1));
 		est2.setCidades(Arrays.asList(c2,c3));
@@ -101,8 +112,13 @@ public class CursomcApplication implements CommandLineRunner{
 		cat2.getProdutos().add(p2);
 		
 		p1.getCategorias().add(cat1);
+		p1.getItens().addAll(Arrays.asList(ip1));
+		
 		p2.getCategorias().addAll(Arrays.asList(cat1, cat2));
+		p2.getItens().addAll(Arrays.asList(ip3));
+		
 		p3.getCategorias().add(cat1);
+		p3.getItens().addAll(Arrays.asList(ip2));
 		
 		cli1.getTelefones().addAll(Arrays.asList("44998341377", "0983123456"));
 		
@@ -127,6 +143,8 @@ public class CursomcApplication implements CommandLineRunner{
 		pedidoRepository.saveAll(Arrays.asList(ped1, ped2));
 		
 		pagamentoRepository.saveAll(Arrays.asList(pagto1, pagto2));
+		
+		itemPedidoRepository.saveAll(Arrays.asList(ip1,ip2,ip3));
 	}
 
 }
