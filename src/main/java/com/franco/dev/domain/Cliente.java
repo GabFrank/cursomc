@@ -1,6 +1,7 @@
 package com.franco.dev.domain;
 
 import java.io.Serializable;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -14,8 +15,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.swing.JFormattedTextField;
+import javax.swing.text.MaskFormatter;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.franco.dev.enums.TipoCliente;
 
 @Entity
@@ -30,10 +34,11 @@ public class Cliente implements Serializable{
 	private String email;
 	
 	@Column(name="cpfoucnpj")
+	@JsonFormat(pattern = "/(^\\d{3}\\.\\d{3}\\.\\d{3}\\-\\d{2}$)|(^\\d{2}\\.\\d{3}\\.\\d{3}\\/\\d{4}\\-\\d{2}$)/\n")
 	private String cpfOuCnpj;
+	
 	private Integer tipo;
 	
-	@JsonManagedReference
 	@OneToMany(mappedBy = "cliente")
 	private List<Endereco> enderecos;
 	
@@ -41,6 +46,7 @@ public class Cliente implements Serializable{
 	@CollectionTable(name="TELEFONE")
 	private Set<String> telefones = new HashSet<>();
 	
+	@JsonIgnore
 	@OneToMany(mappedBy = "cliente")
 	private List<Pedido> pedidos = new ArrayList<>();
 	
@@ -79,8 +85,36 @@ public class Cliente implements Serializable{
 		this.email = email;
 	}
 
-	public String getCpfOuCnpj() {
-		return cpfOuCnpj;
+	public String getCpfOuCnpj() throws ParseException {
+		
+		JFormattedTextField tfcpf = null;
+		
+		switch (cpfOuCnpj.length()) {
+		case 11:
+			MaskFormatter cpf = new MaskFormatter("###.###.###-##");  
+	        tfcpf = new JFormattedTextField(cpf);
+	        tfcpf.setText(cpfOuCnpj);
+			break;
+		case 14:
+			MaskFormatter cnpj = new MaskFormatter("##.###.###/####-##");  
+	        tfcpf = new JFormattedTextField(cnpj);
+	        tfcpf.setText(cpfOuCnpj);
+			break;
+		default:
+			break;
+		}
+		
+			try{
+
+		           
+
+
+		        }catch (Exception e){}
+		
+		
+		
+			
+		return tfcpf.getText();
 	}
 
 	public void setCpfOuCnpj(String cpfOuCnpj) {
