@@ -1,5 +1,6 @@
 package com.franco.dev;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +13,20 @@ import com.franco.dev.domain.Cidade;
 import com.franco.dev.domain.Cliente;
 import com.franco.dev.domain.Endereco;
 import com.franco.dev.domain.Estado;
+import com.franco.dev.domain.Pagamento;
+import com.franco.dev.domain.PagamentoComBoleto;
+import com.franco.dev.domain.PagamentoComCartao;
+import com.franco.dev.domain.Pedido;
 import com.franco.dev.domain.Produto;
+import com.franco.dev.enums.EstadoPagamento;
 import com.franco.dev.enums.TipoCliente;
 import com.franco.dev.repository.CategoriaRepository;
 import com.franco.dev.repository.CidadeRepository;
 import com.franco.dev.repository.ClienteRepository;
 import com.franco.dev.repository.EnderecoRepository;
 import com.franco.dev.repository.EstadoRepository;
+import com.franco.dev.repository.PagamentoRepository;
+import com.franco.dev.repository.PedidoRepository;
 import com.franco.dev.repository.ProdutoRepository;
 
 @SpringBootApplication
@@ -41,6 +49,12 @@ public class CursomcApplication implements CommandLineRunner{
 	
 	@Autowired 
 	EnderecoRepository enderecoRepository;
+	
+	@Autowired
+	PedidoRepository pedidoRepository;
+	
+	@Autowired 
+	PagamentoRepository pagamentoRepository;
 	
 
 	public static void main(String[] args) {
@@ -69,6 +83,16 @@ public class CursomcApplication implements CommandLineRunner{
 		Endereco e1 = new Endereco(null, "Av. Paraguay", "123", "Bodega Franco", "San Miguel", "7200", cli1, c1);
 		Endereco e2 = new Endereco(null, "Rua Bragaça", "630", "Apto. 302", "Zona 7", "0987", cli1, c2);
 		
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyy HH:mm");
+		
+		Pedido ped1 = new Pedido(null, sdf.parse("30/09/2017 10:32"), cli1, e1);
+		Pedido ped2 = new Pedido(null, sdf.parse("10/10/2019 19:35"), cli1, e2);
+		
+		Pagamento pagto1 = new PagamentoComCartao(null, EstadoPagamento.QUITADO, ped1, 6);
+		ped1.setPagamento(pagto1);
+		
+		Pagamento pagto2 = new PagamentoComBoleto(null, EstadoPagamento.PENDENTE, ped2, sdf.parse("20/10/2019 00:00"), null);
+		ped2.setPagamento(pagto2);
 		
 		est1.setCidades(Arrays.asList(c1));
 		est2.setCidades(Arrays.asList(c2,c3));
@@ -84,6 +108,7 @@ public class CursomcApplication implements CommandLineRunner{
 		
 		cli1.setEnderecos(Arrays.asList(e1,e2));
 		
+		cli1.getPedidos().addAll(Arrays.asList(ped1, ped2));
 		
 		
 		categoriaRepository.saveAll(Arrays.asList(cat1, cat2));
@@ -98,6 +123,10 @@ public class CursomcApplication implements CommandLineRunner{
 		clienteRepository.saveAll(Arrays.asList(cli1));
 		
 		enderecoRepository.saveAll(Arrays.asList(e1,e2));
+		
+		pedidoRepository.saveAll(Arrays.asList(ped1, ped2));
+		
+		pagamentoRepository.saveAll(Arrays.asList(pagto1, pagto2));
 	}
 
 }
